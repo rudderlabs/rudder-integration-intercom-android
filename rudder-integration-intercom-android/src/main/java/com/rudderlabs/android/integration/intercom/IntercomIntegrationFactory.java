@@ -21,11 +21,11 @@ import io.intercom.android.sdk.UserAttributes;
 import io.intercom.android.sdk.Intercom.Visibility;
 import io.intercom.android.sdk.identity.Registration;
 import io.intercom.android.sdk.Company;
+import io.intercom.com.google.gson.Gson;
 
 public class IntercomIntegrationFactory extends RudderIntegration<Intercom> {
 
-    private static final String INTERCOM_KEY = "Intercom";
-    private Map<String, String> eventMap = new HashMap<>();
+    private static final String INTERCOM_KEY = Constants.INTERCOM;
 
     public static Factory FACTORY = new Factory() {
         @Override
@@ -41,146 +41,123 @@ public class IntercomIntegrationFactory extends RudderIntegration<Intercom> {
 
     private IntercomIntegrationFactory(Object config, final RudderClient client, RudderConfig rudderConfig) {
 
+        Intercom.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? Intercom.LogLevel.VERBOSE
+                : Intercom.LogLevel.ERROR);
+
         String mobileApiKey = "";
-        Map<String, Object> destinationConfig = (Map<String, Object>) config;
-        if (destinationConfig != null && destinationConfig.containsKey("mobileApiKey")) {
-            mobileApiKey = (String) destinationConfig.get("mobileApiKey");
-        }
         String appId = "";
-        if (destinationConfig != null && destinationConfig.containsKey("appId")) {
-            appId = (String) destinationConfig.get("appId");
+        Map<String, Object> destinationConfig = (Map<String, Object>) config;
+
+        if (destinationConfig != null && destinationConfig.containsKey(Constants.MOBILE_API_KEY)) {
+            mobileApiKey = (String) destinationConfig.get(Constants.MOBILE_API_KEY);
         }
 
-        if(TextUtils.isEmpty(mobileApiKey) && TextUtils.isEmpty(appId)) {
-            // throw error. wrong config
-            throw new Error("wrong config");
+        if (destinationConfig != null && destinationConfig.containsKey(Constants.APP_ID)) {
+            appId = (String) destinationConfig.get(Constants.APP_ID);
+        }
+
+        if (TextUtils.isEmpty(mobileApiKey) || TextUtils.isEmpty(appId)) {
+            RudderLogger.logError(Constants.CONFIG_ERROR);
         } else {
             Intercom.initialize(client.getApplication(), mobileApiKey, appId);
             Intercom.client().setLauncherVisibility(Visibility.VISIBLE);
-            Intercom.client().setBottomPadding(40);
-        }
-        if (destinationConfig != null && destinationConfig.containsKey("customMappings")) {
-            List<Object> eventList = (List<Object>) destinationConfig.get("customMappings");
-            if (eventList != null && !eventList.isEmpty()) {
-                for (Object item : eventList) {
-                    Map<String, String> keyMap = (Map<String, String>) item;
-                    if (keyMap != null && keyMap.containsKey("from") && keyMap.containsKey("to")) {
-                        eventMap.put(keyMap.get("from"), keyMap.get("to"));
-                    }
-                }
-            }
-        }
-        double delay = 0;
-        if (destinationConfig != null && destinationConfig.containsKey("delay")) {
-            Double delayTime = (Double) destinationConfig.get("delay");
-            if (delayTime != null) {
-                delay = delayTime;
-            }
-            if (delay < 0) {
-                delay = 0;
-            } else if (delay > 10) {
-                delay = 10;
-            }
         }
 
-        Intercom.setLogLevel(rudderConfig.getLogLevel() >= RudderLogger.RudderLogLevel.DEBUG ? Intercom.LogLevel.VERBOSE : Intercom.LogLevel.ERROR);
     }
-
 
     private void processRudderEvent(RudderMessage element) {
         if (element != null && element.getType() != null) {
             switch (element.getType()) {
-                case MessageType.TRACK:
-                    //Track events of a particular user - track
+            case MessageType.TRACK:
+                // Track events of a particular user - track
 
-                    String eventName = element.getEventName();
+                String eventName = element.getEventName();
+                Map<String, Object> eventData = element.getProperties();
 
-                     if(element.getProperties() != null){
-                         Map<String, Object> eventData = new HashMap<>();
-                         for (String key: eventData.keySet()){
-                             eventData.put(key, eventData.get(key));
-                         }
-                         Intercom.client().logEvent(eventName, eventData);
-                     }
+                if (!TextUtils.isEmpty(element.getEventName()) || eventData != null) {
 
-
-                    break;
-                case MessageType.IDENTIFY:
-//                    Create/Update a user
-
-                    UserAttributes.Builder userAttributes = new UserAttributes.Builder();
-                    Company.Builder company = new Company.Builder();
-                    userAttributes.withUserId(element.getUserId());
-
-                    if (TextUtils.isEmpty(element.getUserId())) {
-                        Intercom.client().registerUnidentifiedUser();
-                    } else {
-                        Registration registration = Registration.create().withUserId(element.getUserId());
-                        Intercom.client().registerIdentifiedUser(registration);
+                    if (TextUtils.isEmpty(element.getEventName())) {
+                        eventName = null;
                     }
 
+                    if (eventData != null) {
+                        for (String key : eventData.keySet()) {
+                            eventData.put(key, eventData.get(key));
+                        }
+                    }
+                    Intercom.client().logEvent(eventName, eventData);
+                }
 
-                    Map<String, Object> eventProperties = element.getTraits();
-                    if (eventProperties != null) {
+                break;
+            case MessageType.IDENTIFY:
+                // Create/Update a user
 
-                        for (String key : eventProperties.keySet()) {
+                UserAttributes.Builder userAttributes = new UserAttributes.Builder();
+                Company.Builder company = new Company.Builder();
+                userAttributes.withUserId(element.getUserId());
 
-                            if(key.toLowerCase() == "company" ){
-                                List<Object> companyProperties = (List<Object>) eventProperties.get("company");
-                                if(companyProperties != null){
-                                    for (Object item : companyProperties) {
-                                        Map<String, String> keyMap = (Map<String, String>) item;
-                                        if (keyMap.containsKey("name")){
-                                            company.withName(keyMap.get("name"));
-                                        } else if (keyMap.containsKey("id")){
-                                            company.withCompanyId(keyMap.get("id"));
-                                        }else {
-                                            company.withCustomAttribute(key, keyMap.get(key));
-                                        }
+                if (TextUtils.isEmpty(element.getUserId())) {
+                    Intercom.client().registerUnidentifiedUser();
+                } else {
+                    Registration registration = Registration.create().withUserId(element.getUserId());
+                    Intercom.client().registerIdentifiedUser(registration);
+                }
+
+                Map<String, Object> eventProperties = element.getTraits();
+                if (eventProperties != null) {
+
+                    for (String key : eventProperties.keySet()) {
+
+                        if (key.toLowerCase() == Constants.COMPANY) {
+                            List<Object> companyProperties = (List<Object>) eventProperties.get(Constants.COMPANY);
+                            if (companyProperties != null) {
+                                for (Object item : companyProperties) {
+                                    Map<String, String> keyMap = (Map<String, String>) item;
+                                    if (keyMap.containsKey(Constants.NAME)) {
+                                        company.withName(keyMap.get(Constants.NAME));
+                                    } else if (keyMap.containsKey(Constants.ID)) {
+                                        company.withCompanyId(keyMap.get(Constants.ID));
+                                    } else {
+                                        company.withCustomAttribute(key, keyMap.get(key));
                                     }
-
                                 }
+
                             }
-                            else {
-                                if (key.toLowerCase() == "name"){
-                                    userAttributes.withName(String.valueOf(eventProperties.get(key)));
-                                }
+                        } else {
+                            if (key.toLowerCase() == Constants.NAME) {
+                                userAttributes.withName(String.valueOf(eventProperties.get(key)));
+                            }
 
-                                if(key.toLowerCase() == "email"){
-                                    userAttributes.withEmail(String.valueOf(eventProperties.get(key)));
-                                }
+                            if (key.toLowerCase() == Constants.EMAIL) {
+                                userAttributes.withEmail(String.valueOf(eventProperties.get(key)));
+                            }
 
-                                if(key.toLowerCase() == "phone"){
-                                    userAttributes.withPhone((String.valueOf(eventProperties.get(key))));
-                                }
+                            if (key.toLowerCase() == Constants.PHONE) {
+                                userAttributes.withPhone((String.valueOf(eventProperties.get(key))));
+                            }
 
-//                                if(key.toLowerCase() == "signedUpAt"){
-//                                    long date = String.valueOf(eventProperties.get(key));
-//                                    userAttributes.withSignedUpAt(date);
-//                                }
+                            // if(key.toLowerCase() == "signedUpAt"){
+                            // long date = String.valueOf(eventProperties.get(key));
+                            // userAttributes.withSignedUpAt(date);
+                            // }
 
-                                if(key.toLowerCase() != "name" && key.toLowerCase() != "email"){
-                                    userAttributes.withCustomAttribute(key, String.valueOf(eventProperties.get(key)));
-                                }
+                            if (key.toLowerCase() != Constants.NAME && key.toLowerCase() != Constants.EMAIL) {
+                                String json = new Gson().toJson(eventProperties.get(key));
+                                userAttributes.withCustomAttribute(key, json);
                             }
                         }
                     }
+                }
 
+                // Requires rudder Option
+                // Intercom.client().setUserHash("your_hmac_of_user_id_or_email");
 
-//                    Requires rudder Option
-//                    Intercom.client().setUserHash("your_hmac_of_user_id_or_email");
+                Intercom.client().updateUser(userAttributes.withCompany(company.build()).build());
 
-                    Intercom.client().updateUser(userAttributes.withCompany(company.build()).build());
-
-
-
-                    break;
-                case MessageType.SCREEN:
-                    RudderLogger.logWarn("IntercomIntegrationFactory: MessageType is not supported");
-                    break;
-                default:
-                    RudderLogger.logWarn("IntercomIntegrationFactory: MessageType is not specified");
-                    break;
+                break;
+            default:
+                RudderLogger.logWarn(Constants.NOT_SUPPORTED_MESSAGE);
+                break;
             }
         }
     }

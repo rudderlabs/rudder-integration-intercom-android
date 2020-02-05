@@ -3,5 +3,5 @@
 **/build/
 .gradle/
 .idea/
-rudder-sdk-core/
+/rudder-sdk-core
 local.properties
