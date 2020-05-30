@@ -30,14 +30,16 @@ android {
     }
 }
 
+repositories {
+    maven { url  "https://dl.bintray.com/rudderstack/rudderstack" }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-//    compileOnly 'com.rudderlabs.android.sdk:rudder-sdk-core:0.1.5'
-    compileOnly project(':rudder-sdk-core')
-//    implementation 'io.intercom.android:intercom-sdk:6.0.1'
+    implementation 'com.rudderstack.android.sdk:core:1.+'
     implementation 'io.intercom.android:intercom-sdk-base:6.+'
-    implementation 'com.google.firebase:firebase-messaging:20.1.0'
+    implementation 'com.google.firebase:firebase-messaging:20.2.0'
 
     testImplementation 'com.android.support.test:rules:1.0.2'
     testImplementation 'com.android.support.test:runner:1.0.2'

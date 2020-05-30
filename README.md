@@ -1,41 +1,47 @@
-[ ![Download](https://api.bintray.com/packages/rudderlabs-bintray/rudder-sdk-android-core/rudder-integration-adjust-android/images/download.svg?version=0.1.1) ](https://bintray.com/rudderlabs-bintray/rudder-sdk-android-core/rudder-integration-adjust-android/0.1.1/link)
-
 # What is Rudder?
 
 **Short answer:** 
-Rudder is an open-source Segment alternative written in Go, built for the enterprise. .
+Rudder is an open-source Segment alternative written in Go, built for the enterprise.
 
 **Long answer:** 
 Rudder is a platform for collecting, storing and routing customer event data to dozens of tools. Rudder is open-source, can run in your cloud environment (AWS, GCP, Azure or even your data-centre) and provides a powerful transformation framework to process your event data on the fly.
 
 Released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-## Getting Started with Adjust Integration of Android SDK
-1. Add [Adjust](https://www.adjust.com) as a destination in the [Dashboard](https://app.rudderlabs.com/) and define ```apiToken``` and ```eventMapping```
+## Getting Started with Intercom Integration of Android SDK
+1. Add [Intercom](https://www.intercom.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define `applicationId`, and `clientKey`. If you turn on the Development Environment flag, make sure to put your development key in `clientKey`.
 
-2. Add these lines to your ```app/build.gradle```
+2. Setup the Hybrid Mode of integration: 
+  - Turning on the switch beside `Initialize Native SDK to send automated events` in the dashboard will initialize the Intercom native SDK in the application.
+  - Turning on the switch beside `Use native SDK to send user generated events` in the dashboard will instruct your `data-plane` to skip the events for Intercom and the events will be sent from the Intercom SDK.
+
+3. Add these lines to your ```app/build.gradle```
 ```
 repositories {
-  maven {
-    url  "https://dl.bintray.com/rudderlabs-bintray/rudder-sdk-android-core"
-  }
+    maven { url "https://dl.bintray.com/rudderstack/rudderstack" }
 }
 ```
-3. Add the dependency under ```dependencies```
+4. Add the dependency under ```dependencies```
 ```
-implementation 'com.rudderlabs.android.sdk:rudder-sdk-core:0.1.4'
-implementation 'com.rudderlabs.android.integration.adjust:rudder-integration-adjust-android:0.1.1'
+// Rudder core sdk and intercom extension
+implementation 'com.rudderstack.android.sdk:core:1.0.2'
+implementation 'com.rudderstack.android.integration:intercom:0.1.1'
+
+// intercom core sdk
+implementation 'io.intercom.android:intercom-sdk-base:6.+'
+
+// gson
+implementation 'com.google.code.gson:gson:2.8.6'
 ```
 
 ## Initialize ```RudderClient```
 ```
 val rudderClient: RudderClient = RudderClient.getInstance(
     this,
-    WRITE_KEY,
+    <WRITE_KEY>,
     RudderConfig.Builder()
-        .withEndPointUri(END_POINT_URI)
-        .withLogLevel(RudderLogger.RudderLogLevel.DEBUG)
-        .withFactory(AdjustIntegrationFactory.FACTORY)
+        .withDataPlaneUrl(<DATA_PLANE_URL>)
+        .withFactory(IntercomIntegrationFactory.FACTORY)
         .build()
 )
 ```
@@ -43,7 +49,5 @@ val rudderClient: RudderClient = RudderClient.getInstance(
 ## Send Events
 Follow the steps from [Rudder Android SDK](https://github.com/rudderlabs/rudder-sdk-android)
 
-# Coming Soon
-1. Native platform SDK integration support
-2. More documentation
-3. More destination support
+## Contact Us
+If you come across any issues while configuring or using RudderStack, please feel free to [contact us](https://rudderstack.com/contact/) or start a conversation on our [Discord](https://discordapp.com/invite/xNEdEGw) channel. We will be happy to help you.

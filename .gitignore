@@ -3,5 +3,7 @@
 **/build/
 .gradle/
 .idea/
-/rudder-sdk-core
 local.properties
+**/.project
+**/.settings
+**/.classpath

@@ -1,17 +1,17 @@
 ext {
     bintrayRepo = 'rudderstack'
-    bintrayName = 'rudder-integration-adjust-android'
+    bintrayName = 'intercom'
 
-    publishedGroupId = 'com.rudderlabs.android.integration.adjust'
+    publishedGroupId = 'com.rudderstack.android.integration'
     libraryName = 'RudderAndroidSdkCore'
-    artifact = 'rudder-integration-adjust-android'
+    artifact = 'intercom'
 
     libraryDescription = 'Android  SDK for Rudderstack. Steer your customer data'
 
     siteUrl = 'https://github.com/rudderlabs/rudder-sdk-android'
-    gitUrl = 'https://github.com/rudderlabs/rudder-integration-adjust-android.git'
+    gitUrl = 'https://github.com/rudderlabs/rudder-integration-intercom-android.git'
 
-    libraryVersion = '0.1.2'
+    libraryVersion = '0.1.1'
 
     developerId = 'arnabp92'
     developerName = 'Arnab Pal'
