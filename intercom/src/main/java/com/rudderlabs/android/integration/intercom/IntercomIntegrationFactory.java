@@ -12,23 +12,17 @@ import com.rudderstack.android.sdk.core.RudderContext;
 import com.rudderstack.android.sdk.core.RudderIntegration;
 import com.rudderstack.android.sdk.core.RudderLogger;
 import com.rudderstack.android.sdk.core.RudderMessage;
-import com.rudderstack.android.sdk.core.RudderProperty;
-import com.rudderstack.android.sdk.core.RudderTraits;
 
-import java.awt.font.TextAttribute;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import io.intercom.android.sdk.Intercom;
-import io.intercom.android.sdk.UserAttributes;
-import io.intercom.android.sdk.Intercom.Visibility;
-import io.intercom.android.sdk.identity.Registration;
 import io.intercom.android.sdk.Company;
-import io.intercom.com.google.gson.Gson;
+import io.intercom.android.sdk.Intercom;
+import io.intercom.android.sdk.Intercom.Visibility;
+import io.intercom.android.sdk.UserAttributes;
+import io.intercom.android.sdk.identity.Registration;
 
 public class IntercomIntegrationFactory extends RudderIntegration<Intercom> {
     private static final String INTERCOM_KEY = "Intercom";
