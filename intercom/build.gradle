@@ -37,7 +37,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    implementation 'com.rudderstack.android.sdk:core:1.+'
+    implementation 'com.rudderstack.android.sdk:core:1.0.2-patch.2'
     implementation 'io.intercom.android:intercom-sdk-base:6.+'
     implementation 'com.google.firebase:firebase-messaging:20.2.0'
 

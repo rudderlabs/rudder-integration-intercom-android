@@ -2,7 +2,8 @@ package com.rudderlabs.android.sample.kotlin
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.rudderstack.android.sdk.core.*
+import com.rudderstack.android.sdk.core.RudderProperty
+import com.rudderstack.android.sdk.core.RudderTraits
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,42 +13,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendEvents() {
-        MainApplication.rudderClient.track(
-            RudderMessageBuilder()
-                .setEventName("daily_rewards_claim")
-                .setProperty(
-                    TrackPropertyBuilder()
-                        .setCategory("test_category")
-                        .build()
+        MainApplication.instance.rudderClient?.let {
+            it.track("simple_track_event_android")
+            it.track(
+                "simple_track_props_android", RudderProperty().putValue(
+                    mapOf(
+                        "key1" to "val1",
+                        "key2" to "val2"
+                    )
                 )
-                .setUserId("test_user_id")
-        )
+            )
 
-        MainApplication.rudderClient.identify("test1234")
-
-        MainApplication.rudderClient.track(
-            RudderMessageBuilder()
-                .setEventName("level_up")
-                .setProperty(
-                    TrackPropertyBuilder()
-                        .setCategory("test_category")
-                        .build()
+            it.identify("sample_user_id_android", RudderTraits()
+                .putCompany(
+                    RudderTraits.Company()
+                        .putId("company_id")
+                        .putIndustry("Software Industry")
+                        .putName("RudderStack")
                 )
-                .setUserId("test_user_id")
-        )
-
-        MainApplication.rudderClient.reset()
-
-        val revenueProperty = TrackPropertyBuilder()
-            .setCategory("test_category")
-            .build()
-        revenueProperty.put("total", 4.99)
-        revenueProperty.put("currency", "USD")
-        MainApplication.rudderClient.track(
-            RudderMessageBuilder()
-                .setEventName("revenue")
-                .setProperty(revenueProperty)
-                .setUserId("test_user_id")
-        )
+                .putName("Test Name")
+                .putEmail("test@rudderstack.com")
+                .putCreatedAt("2020-09-09T09:00:00.000Z")
+                .putPhone("9876543210")
+                .putDescription("Test User"),
+                null
+            )
+        }
     }
 }

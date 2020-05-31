@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.rudderstack.android.sdk.core.MessageType;
 import com.rudderstack.android.sdk.core.RudderClient;
 import com.rudderstack.android.sdk.core.RudderConfig;
+import com.rudderstack.android.sdk.core.RudderContext;
 import com.rudderstack.android.sdk.core.RudderIntegration;
 import com.rudderstack.android.sdk.core.RudderLogger;
 import com.rudderstack.android.sdk.core.RudderMessage;
@@ -31,8 +32,9 @@ import io.intercom.com.google.gson.Gson;
 
 public class IntercomIntegrationFactory extends RudderIntegration<Intercom> {
     private static final String INTERCOM_KEY = "Intercom";
-    private static final String MOBILE_API_KEY = "mobileApiKey";
+    private static final String MOBILE_API_KEY = "mobileApiKeyAndroid";
     private static final String APP_ID = "appId";
+    private static final String USER_ID = "userId";
     private static final String CONFIG_ERROR = "wrong config";
     private static final String COMPANY = "company";
     private static final String NAME = "name";
@@ -76,13 +78,34 @@ public class IntercomIntegrationFactory extends RudderIntegration<Intercom> {
             Intercom.initialize(client.getApplication(), mobileApiKey, appId);
             Intercom.client().setLauncherVisibility(Visibility.VISIBLE);
         }
+
+        RudderContext context = client.getRudderContext();
+        String userId = null;
+        if (context != null && context.getTraits() != null) {
+            Map<String, Object> traits = context.getTraits();
+            if (traits.containsKey(USER_ID)) {
+                userId = (String) traits.get(USER_ID);
+            } else if (traits.containsKey(ID)) {
+                userId = (String) traits.get(ID);
+            }
+        }
+        if (!TextUtils.isEmpty(userId)) {
+            Registration registration = Registration.create().withUserId(userId);
+            Intercom.client().registerIdentifiedUser(registration);
+        } else {
+            Intercom.client().registerUnidentifiedUser();
+        }
     }
 
     private void processRudderEvent(@NonNull RudderMessage element) {
         if (element.getType() != null) {
             switch (element.getType()) {
                 case MessageType.TRACK:
-                    Intercom.client().logEvent(element.getEventName(), element.getProperties());
+                    if (element.getProperties() != null) {
+                        Intercom.client().logEvent(element.getEventName(), element.getProperties());
+                    } else {
+                        Intercom.client().logEvent(element.getEventName());
+                    }
                     break;
                 case MessageType.IDENTIFY:
                     UserAttributes.Builder userAttributesBuilder = new UserAttributes.Builder();
