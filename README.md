@@ -32,15 +32,19 @@ implementation 'io.intercom.android:intercom-sdk-base:6.+'
 
 // gson
 implementation 'com.google.code.gson:gson:2.8.6'
+
+// FCM
+implementation 'com.google.firebase:firebase-messaging:20.2.0'
 ```
 
 ## Initialize ```RudderClient```
 ```
-val rudderClient: RudderClient = RudderClient.getInstance(
+val rudderClient:RudderClient = RudderClient.getInstance(
     this,
-    <WRITE_KEY>,
+    WRITE_KEY,
     RudderConfig.Builder()
-        .withDataPlaneUrl(<DATA_PLANE_URL>)
+        .withDataPlaneUrl(DATA_PLANE_URL)
+        .withLogLevel(RudderLogger.RudderLogLevel.DEBUG) // optional
         .withFactory(IntercomIntegrationFactory.FACTORY)
         .build()
 )
