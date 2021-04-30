@@ -1,16 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    }
-}
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 29
@@ -30,14 +19,10 @@ android {
     }
 }
 
-repositories {
-    maven { url  "https://dl.bintray.com/rudderstack/rudderstack" }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
-    implementation 'com.rudderstack.android.sdk:core:1.0.2-patch.2'
+    implementation 'com.rudderstack.android.sdk:core:1.+'
     implementation 'io.intercom.android:intercom-sdk-base:6.+'
     implementation 'com.google.firebase:firebase-messaging:20.2.0'
 
