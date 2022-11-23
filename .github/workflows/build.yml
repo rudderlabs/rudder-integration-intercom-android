@@ -17,7 +17,7 @@ jobs:
         with:
           workflow_id: ${{ github.event.workflow.id }}
 
-  rudder-integration-intercom-android-test:
+  -test:
     needs: cancel_previous
     runs-on: ubuntu-latest
 
@@ -35,9 +35,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-core-
       - name: Run Tests
-        run: ./gradlew rudder-integration-intercom-android:test
+        run: ./gradlew :test
       - name: Generate coverage report
-        run: ./gradlew rudder-integration-intercom-android:codeCoverageReport
+        run: ./gradlew :codeCoverageReport
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
 
