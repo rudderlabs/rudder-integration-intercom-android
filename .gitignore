@@ -7,4 +7,4 @@ local.properties
 **/.project
 **/.settings
 **/.classpath
-.settings
+.settingsnode_modules/*
